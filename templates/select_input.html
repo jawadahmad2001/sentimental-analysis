@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Input — Sentiment AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root{--glass-bg:rgba(255,255,255,0.18);--card-border:rgba(255,255,255,0.18);--accent:#aa96da}
+        body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#d4a5a5,#a8d8ea,#aa96da);min-height:100vh;padding-top:5rem}
+        .glass-shape{position:absolute;border-radius:50%;background:rgba(255,255,255,0.15);backdrop-filter:blur(12px);border:1px solid var(--card-border);z-index:-1}
+        .shape-1{width:260px;height:260px;top:-80px;left:-80px}
+        .shape-2{width:360px;height:360px;bottom:-120px;right:-120px}
+        .main-container{max-width:820px;margin:0 auto;background:rgba(255,255,255,0.22);backdrop-filter:blur(14px);border-radius:20px;padding:2.25rem;border:1px solid var(--card-border);box-shadow:0 8px 32px rgba(31,38,135,0.37)}
+        .choice-btn{border-radius:14px;padding:1rem 1.5rem;font-weight:600}
+        .nav-right a{margin-left:1rem}
+        /* selector styles */
+        .selector { 
+            width: 100%; 
+            max-width: 450px; 
+            margin: 0 auto;
+        }
+        .selector-track { 
+            position: relative; 
+            display: flex; 
+            background: rgba(255,255,255,0.12); 
+            border-radius: 14px; 
+            padding: 6px; 
+            gap: 6px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .sel-btn { 
+            position: relative; 
+            z-index: 2; 
+            flex: 1; 
+            border: none; 
+            background: transparent; 
+            padding: 0.8rem 1.2rem; 
+            border-radius: 10px; 
+            color: rgba(255,255,255,0.6); 
+            font-weight: 600; 
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.22s ease;
+        }
+        .sel-btn:hover {
+            color: rgba(255,255,255,0.85);
+        }
+        .sel-btn.active { 
+            color: #fff; 
+        }
+        .selector-slider { 
+            position: absolute; 
+            top: 6px; 
+            left: 6px; 
+            height: calc(100% - 12px); 
+            background: linear-gradient(135deg, #ff7a00, #ffb347); 
+            border-radius: 10px; 
+            z-index: 1; 
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.28s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            box-shadow: 0 6px 20px rgba(255, 122, 0, 0.35), inset 0 2px 6px rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-shape shape-1"></div>
+    <div class="glass-shape shape-2"></div>
+
+        <nav class="navbar" style="position: fixed; top: 0; left:0; right:0; background: var(--glass-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--card-border); box-shadow: 0 4px 16px rgba(0,0,0,0.1); padding: 1rem 2rem; z-index:1000;">
+                <div class="container-fluid d-flex justify-content-between align-items-center">
+                        <a href="/" class="navbar-brand" style="display:flex;align-items:center;gap:.75rem;font-weight:600;font-size:1.25rem;color:var(--text-color);text-decoration:none;">
+                                <i class="fas fa-brain" style="color:var(--accent);"></i>
+                                Sentiment AI
+                        </a>
+                        <div class="nav-links" style="display:flex;gap:1rem;">
+                                <a href="/user_history" class="nav-link">My History</a>
+                                {% if session.get('role') == 'admin' %}
+                                <a href="/admin" class="nav-link">Admin Panel</a>
+                                {% endif %}
+                                <a href="/logout" class="nav-link">Logout</a>
+                        </div>
+                </div>
+        </nav>
+
+    <div class="main-container mt-4">
+        <h2 class="text-center mb-3">Choose Input Method</h2>
+        <p class="text-center mb-4">Select whether you want to submit text or upload/record audio for suicide-risk detection.</p>
+
+        <div class="d-flex justify-content-center gap-4">
+            <div class="selector">
+                <div class="selector-track">
+                    <button id="optText" class="sel-btn active"><i class="fas fa-keyboard me-2"></i>Text</button>
+                    <button id="optAudio" class="sel-btn"><i class="fas fa-microphone me-2"></i>Audio</button>
+                    <div id="selectorSlider" class="selector-slider"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 text-center text-muted">
+            <small>Text input is faster. Audio input will transcribe Urdu audio and translate to English before analysis.</small>
+        </div>
+    </div>
+
+    <script>
+        // Slider selector behavior
+        const optText = document.getElementById('optText');
+        const optAudio = document.getElementById('optAudio');
+        const slider = document.getElementById('selectorSlider');
+
+        function moveSliderTo(element) {
+            const rect = element.getBoundingClientRect();
+            const parentRect = element.parentElement.getBoundingClientRect();
+            const left = rect.left - parentRect.left;
+            slider.style.transform = `translateX(${left}px)`;
+            slider.style.width = rect.width + 'px';
+        }
+
+        // initial position
+        window.addEventListener('load', () => moveSliderTo(optText));
+
+        optText.addEventListener('click', () => {
+            optText.classList.add('active');
+            optAudio.classList.remove('active');
+            moveSliderTo(optText);
+            // navigate after slight animation delay
+            setTimeout(() => { window.location.href = '/text_input'; }, 220);
+        });
+
+        optAudio.addEventListener('click', () => {
+            optAudio.classList.add('active');
+            optText.classList.remove('active');
+            moveSliderTo(optAudio);
+            setTimeout(() => { window.location.href = '/audio_input'; }, 220);
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

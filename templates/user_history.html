@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analysis History | Sentiment AI</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --bg-gradient: linear-gradient(135deg, #d4a5a5, #a8d8ea, #aa96da);
+        --glass-bg: rgba(255, 255, 255, 0.25);
+        --text-color: #2d3436;
+        --accent: #aa96da;
+        --accent-hover: #9384c1;
+        --link-color: #636e72;
+        --card-border: rgba(255, 255, 255, 0.18);
+        --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        --neon-green: #87c28a;
+        --neon-red: #f7a6a6;
+      }
+
+      body {
+        background: var(--bg-gradient);
+        background-size: 300% 300%;
+        animation: gradient-animation 15s ease infinite;
+        font-family: "Poppins", sans-serif;
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        margin: 0;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      @keyframes gradient-animation {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      /* Decorative glass shapes */
+      .glass-shape {
+        position: fixed;
+        border-radius: 50%;
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--card-border);
+        z-index: -1;
+      }
+
+      .shape-1 {
+        width: 300px;
+        height: 300px;
+        top: -100px;
+        left: -100px;
+      }
+
+      .shape-2 {
+        width: 400px;
+        height: 400px;
+        bottom: -150px;
+        right: -150px;
+      }
+
+      .shape-3 {
+        width: 200px;
+        height: 200px;
+        top: 40%;
+        left: 10%;
+      }
+
+      /* Navbar */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--card-border);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        padding: 1rem 2rem;
+        z-index: 1000;
+      }
+
+      .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+        font-size: 1.5rem;
+        color: var(--text-color);
+        text-decoration: none;
+      }
+
+      .brand-icon {
+        color: var(--accent);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .nav-link {
+        color: var(--link-color);
+        text-decoration: none;
+        padding: 0.5rem 1.25rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: var(--text-color);
+        transform: translateY(-2px);
+      }
+
+      /* Main content */
+      .history-container {
+        margin-top: 6rem;
+        margin-bottom: 2rem;
+        padding: 0 2rem;
+        width: 100%;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .history-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+      }
+
+      .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      .history-title {
+        font-weight: 600;
+        font-size: 1.75rem;
+        color: var(--text-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .title-icon {
+        color: var(--accent);
+        font-size: 1.5rem;
+      }
+
+      /* Empty state */
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        text-align: center;
+      }
+
+      .empty-icon {
+        font-size: 4rem;
+        color: rgba(170, 150, 218, 0.5);
+        margin-bottom: 1.5rem;
+      }
+
+      .empty-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+      }
+
+      .empty-text {
+        color: var(--link-color);
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+      }
+
+      .btn-new-analysis {
+        background: var(--accent);
+        color: white;
+        font-weight: 500;
+        border: none;
+        border-radius: 12px;
+        padding: 0.8rem 2rem;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 4px 15px rgba(170, 150, 218, 0.4);
+      }
+
+      .btn-new-analysis:hover {
+        background: var(--accent-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(170, 150, 218, 0.6);
+        color: white;
+      }
+
+      /* Search and filter */
+      .search-container {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .search-input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 12px;
+        padding: 0.8rem 1.2rem;
+        color: var(--text-color);
+        font-size: 0.95rem;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(170, 150, 218, 0.3);
+      }
+
+      .filter-select {
+        background: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 12px;
+        padding: 0.8rem 1.2rem;
+        color: var(--text-color);
+        font-size: 0.95rem;
+        min-width: 180px;
+      }
+
+      .filter-select:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      /* Table styles */
+      .history-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .history-table th {
+        color: var(--link-color);
+        font-weight: 500;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .history-table td {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(5px);
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+      }
+
+      .history-table tr td:first-child {
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+      }
+
+      .history-table tr td:last-child {
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+
+      /* Status badges */
+      .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      .badge-suicidal {
+        background: rgba(247, 166, 166, 0.2);
+        color: var(--neon-red);
+        border: 1px solid rgba(247, 166, 166, 0.3);
+      }
+
+      .badge-non-suicidal {
+        background: rgba(135, 194, 138, 0.2);
+        color: var(--neon-green);
+        border: 1px solid rgba(135, 194, 138, 0.3);
+      }
+
+      /* Confidence bar */
+      .confidence-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .confidence-text {
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .confidence-bar {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .confidence-level {
+        height: 100%;
+        border-radius: 4px;
+      }
+
+      .confidence-level.suicidal {
+        background: var(--neon-red);
+      }
+
+      .confidence-level.non-suicidal {
+        background: var(--neon-green);
+      }
+
+      /* Delete button */
+      .delete-btn {
+        background: linear-gradient(135deg, #e65a5a, #f28b82);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .delete-btn:hover {
+        background: linear-gradient(135deg, #d84848, #e67a71);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(230, 90, 90, 0.3);
+        color: white;
+      }
+
+      /* Text content */
+      .text-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .text-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--accent);
+        margin: 0;
+      }
+
+      .text-value {
+        margin: 0;
+        line-height: 1.6;
+      }
+
+      /* Pagination */
+      .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .page-link {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: var(--text-color);
+        border-radius: 10px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .page-link:hover {
+        background: rgba(255, 255, 255, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .page-link.active {
+        background: var(--accent);
+        color: white;
+      }
+
+      /* Responsive */
+      @media (max-width: 992px) {
+        .history-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+
+        .search-container {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .filter-select {
+          min-width: 100%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .history-container {
+          padding: 0 1rem;
+          margin-top: 5.5rem;
+        }
+
+        .history-header {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .history-title {
+          font-size: 1.5rem;
+          width: 100%;
+        }
+
+        .search-container {
+          flex-direction: column;
+          width: 100%;
+          gap: 0.75rem;
+        }
+
+        .search-input,
+        .filter-select {
+          width: 100%;
+          min-width: auto;
+        }
+
+        .history-table {
+          border-spacing: 0;
+          margin-bottom: 1rem;
+        }
+
+        .history-table thead {
+          display: none;
+        }
+
+        .history-table,
+        .history-table tbody,
+        .history-table tr,
+        .history-table td {
+          display: block;
+          width: 100%;
+        }
+
+        .history-table tr {
+          margin-bottom: 1.5rem;
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(5px);
+          border-radius: 10px;
+          overflow: hidden;
+          padding: 0;
+        }
+
+        .history-table td {
+          padding: 1rem;
+          position: relative;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          text-align: left;
+        }
+
+        .history-table td:first-child {
+          border-top-left-radius: 10px;
+          border-top-right-radius: 10px;
+          border-bottom-left-radius: 0;
+        }
+
+        .history-table td:last-child {
+          border-bottom-left-radius: 10px;
+          border-bottom-right-radius: 10px;
+          border-top-right-radius: 0;
+        }
+
+        .history-table td:before {
+          content: attr(data-label);
+          font-weight: 600;
+          color: var(--accent);
+          display: block;
+          margin-bottom: 0.5rem;
+          font-size: 0.9rem;
+        }
+
+        .text-value {
+          font-size: 0.95rem;
+          word-break: break-word;
+          max-height: 150px;
+          overflow-y: auto;
+        }
+
+        .delete-btn {
+          width: 100%;
+          justify-content: center;
+          margin-top: 0.75rem;
+        }
+
+        .confidence-wrapper {
+          gap: 0.75rem;
+        }
+
+        .pagination {
+          margin-top: 1rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .navbar {
+          padding: 0.75rem 1rem;
+        }
+
+        .navbar-brand {
+          font-size: 1.25rem;
+          gap: 0.5rem;
+        }
+
+        .nav-links {
+          gap: 0.5rem;
+        }
+
+        .nav-link {
+          padding: 0.4rem 0.75rem;
+          font-size: 0.9rem;
+        }
+
+        .history-container {
+          padding: 0 0.75rem;
+          margin-top: 5rem;
+        }
+
+        .history-card {
+          padding: 1.5rem;
+          border-radius: 15px;
+          margin-bottom: 1rem;
+        }
+
+        .history-title {
+          font-size: 1.25rem;
+        }
+
+        .empty-state {
+          padding: 2rem 1rem;
+        }
+
+        .empty-icon {
+          font-size: 3rem;
+        }
+
+        .empty-title {
+          font-size: 1.25rem;
+        }
+
+        .btn-new-analysis {
+          padding: 0.7rem 1.5rem;
+          font-size: 1rem;
+        }
+
+        .page-link {
+          width: 35px;
+          height: 35px;
+          font-size: 0.85rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Decorative glass shapes -->
+    <div class="glass-shape shape-1"></div>
+    <div class="glass-shape shape-2"></div>
+    <div class="glass-shape shape-3"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div
+        class="container-fluid d-flex justify-content-between align-items-center"
+      >
+        <a href="/" class="navbar-brand">
+          <i class="fas fa-brain brand-icon"></i>
+          Sentiment AI
+        </a>
+        <div class="nav-links">
+          <a href="/" class="nav-link"
+            ><i class="fas fa-chart-bar me-2"></i>New Analysis</a
+          >
+          {% if session.get('role') == 'admin' %}
+          <a href="/admin" class="nav-link"
+            ><i class="fas fa-shield-alt me-2"></i>Admin Panel</a
+          >
+          {% endif %}
+          <a href="/logout" class="nav-link"
+            ><i class="fas fa-sign-out-alt me-2"></i>Logout</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <div class="history-container">
+      <div class="history-card">
+        <div class="history-header">
+          <h1 class="history-title">
+            <i class="fas fa-history title-icon"></i>
+            Analysis History
+          </h1>
+          <div class="search-container">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search in analyses..."
+            />
+            <select class="filter-select">
+              <option value="all">All Results</option>
+              <option value="suicidal">Suicidal</option>
+              <option value="non-suicidal">Non-Suicidal</option>
+            </select>
+          </div>
+        </div>
+
+        {% if analyses %}
+        <div class="table-responsive">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th width="15%">Date</th>
+                <th width="45%">Text</th>
+                <th width="20%">Prediction</th>
+                <th width="20%">Confidence</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for analysis in analyses %}
+              <tr
+                data-prediction="{{ analysis.prediction|lower }}"
+                data-id="{{ analysis.id }}"
+              >
+                <td data-label="Date">
+                  <div class="d-flex align-items-center">
+                    <i
+                      class="far fa-calendar-alt me-2"
+                      style="color: var(--accent)"
+                    ></i>
+                    {{ analysis.created_at.strftime('%Y-%m-%d') }}
+                  </div>
+                  <div class="mt-1 text-muted" style="font-size: 0.85rem">
+                    {{ analysis.created_at.strftime('%H:%M') }}
+                  </div>
+                </td>
+                <td data-label="Text">
+                  <div class="text-content">
+                    {% if analysis.original_text %}
+                    <p class="text-label">Original Text:</p>
+                    <p class="text-value">{{ analysis.original_text }}</p>
+                    {% endif %}
+                    <p class="text-label">Translated Text:</p>
+                    <p class="text-value">{{ analysis.translated_text }}</p>
+                  </div>
+                </td>
+                <td data-label="Prediction">
+                  {% if analysis.prediction == 'Suicidal' %}
+                  <span class="badge badge-suicidal">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Suicidal
+                  </span>
+                  {% else %}
+                  <span class="badge badge-non-suicidal">
+                    <i class="fas fa-check-circle me-2"></i>Non-Suicidal
+                  </span>
+                  {% endif %}
+                  <div style="margin-top: 0.75rem">
+                    <button class="delete-btn" data-id="{{ analysis.id }}">
+                      <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                  </div>
+                </td>
+                <td data-label="Confidence">
+                  <div class="confidence-wrapper">
+                    <div class="confidence-text">
+                      {% if analysis.prediction == 'Suicidal' %} {{
+                      "%.1f"|format(analysis.suicidal_prob * 100) }}% Confidence
+                      {% else %} {{ "%.1f"|format(analysis.non_suicidal_prob *
+                      100) }}% Confidence {% endif %}
+                    </div>
+                    <div class="confidence-bar">
+                      <div
+                        class="confidence-level {% if analysis.prediction == 'Suicidal' %}suicidal{% else %}non-suicidal{% endif %}"
+                        style="width: {% if analysis.prediction == 'Suicidal' %}{{ analysis.suicidal_prob * 100 }}{% else %}{{ analysis.non_suicidal_prob * 100 }}{% endif %}%"
+                      ></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <a href="#" class="page-link"><i class="fas fa-chevron-left"></i></a>
+          <a href="#" class="page-link active">1</a>
+          <a href="#" class="page-link">2</a>
+          <a href="#" class="page-link">3</a>
+          <a href="#" class="page-link"><i class="fas fa-chevron-right"></i></a>
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+          <i class="fas fa-search empty-icon"></i>
+          <h3 class="empty-title">No analysis history found</h3>
+          <p class="empty-text">
+            Start by analyzing some text or voice recordings.
+          </p>
+          <a href="/" class="btn-new-analysis">
+            <i class="fas fa-plus-circle"></i>
+            New Analysis
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Filter dropdown functionality
+      const filterSelect = document.querySelector(".filter-select");
+      const searchInput = document.querySelector(".search-input");
+
+      function applyFilters() {
+        const filter = filterSelect.value; // all | suicidal | non-suicidal
+        const query = searchInput.value.trim().toLowerCase();
+        document.querySelectorAll("tbody tr").forEach((row) => {
+          const prediction = row.getAttribute("data-prediction") || "";
+          const text = row.querySelector(".text-value")
+            ? row.querySelector(".text-value").innerText.toLowerCase()
+            : "";
+          let visible = true;
+          if (filter !== "all" && prediction !== filter) visible = false;
+          if (query && !text.includes(query)) visible = false;
+          row.style.display = visible ? "" : "none";
+        });
+      }
+
+      filterSelect.addEventListener("change", applyFilters);
+      searchInput.addEventListener("input", applyFilters);
+
+      // Delete button handler
+      document.querySelectorAll(".delete-btn").forEach((btn) => {
+        btn.addEventListener("click", async (e) => {
+          const id = btn.getAttribute("data-id");
+          if (!confirm("Delete this analysis? This cannot be undone.")) return;
+          try {
+            const resp = await fetch(`/user_history/delete/${id}`, {
+              method: "POST",
+            });
+            if (!resp.ok) throw new Error("Server error " + resp.status);
+            const json = await resp.json();
+            if (json.success) {
+              // remove row from table
+              const row = document.querySelector(`tr[data-id="${id}"]`);
+              if (row) row.remove();
+            } else {
+              alert("Unable to delete");
+            }
+          } catch (err) {
+            alert("Error deleting: " + err.message);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Sentiment AI</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #d4a5a5, #a8d8ea, #aa96da);
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --text-color: #2d3436;
+            --accent: #aa96da;
+            --accent-hover: #9384c1;
+            --link-color: #636e72;
+            --card-border: rgba(255, 255, 255, 0.18);
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --neon-green: #87c28a;
+            --neon-red: #f7a6a6;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-size: 300% 300%;
+            animation: gradient-animation 15s ease infinite;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Decorative glass shapes */
+        .glass-shape {
+            position: fixed;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            z-index: -1;
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            left: -100px;
+        }
+
+        .shape-2 {
+            width: 400px;
+            height: 400px;
+            bottom: -150px;
+            right: -150px;
+        }
+
+        .shape-3 {
+            width: 200px;
+            height: 200px;
+            top: 40%;
+            left: 10%;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--card-border);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: var(--link-color);
+            text-decoration: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: var(--text-color);
+            transform: translateY(-2px);
+        }
+
+        /* Main content */
+        .admin-container {
+            margin-top: 6rem;
+            margin-bottom: 2rem;
+            padding: 0 2rem;
+            width: 100%;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .admin-title {
+            font-weight: 600;
+            font-size: 2rem;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Stat cards */
+        .stats-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 240px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--link-color);
+            margin: 0;
+        }
+
+        /* Tabs */
+        .tab-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .tab-header {
+            display: flex;
+            background: rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid var(--card-border);
+            padding: 0.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--link-color);
+            font-weight: 500;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: var(--text-color);
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .tab-body {
+            padding: 1.5rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Tables */
+        .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+
+        .admin-table th {
+            padding: 1rem;
+            text-align: left;
+            color: var(--link-color);
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .admin-table td {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .admin-table tr td:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .admin-table tr td:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Status badges */
+        .badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-admin {
+            background: rgba(135, 194, 138, 0.2);
+            color: var(--neon-green);
+            border: 1px solid rgba(135, 194, 138, 0.3);
+        }
+
+        .badge-user {
+            background: rgba(170, 150, 218, 0.2);
+            color: var(--accent);
+            border: 1px solid rgba(170, 150, 218, 0.3);
+        }
+
+        .badge-suicidal {
+            background: rgba(247, 166, 166, 0.2);
+            color: var(--neon-red);
+            border: 1px solid rgba(247, 166, 166, 0.3);
+        }
+        
+        .badge-non-suicidal {
+            background: rgba(135, 194, 138, 0.2);
+            color: var(--neon-green);
+            border: 1px solid rgba(135, 194, 138, 0.3);
+        }
+
+        /* Action buttons */
+        .btn-action {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--text-color);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-delete {
+            background: rgba(247, 166, 166, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(247, 166, 166, 0.3);
+        }
+
+        .btn-delete:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-view {
+            margin-right: 0.5rem;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            gap: 0.5rem;
+        }
+
+        .page-link {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--text-color);
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .page-link:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .page-link.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .stats-row {
+                flex-wrap: wrap;
+            }
+            
+            .stat-card {
+                min-width: calc(50% - 0.75rem);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 0 1rem;
+            }
+            
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .admin-actions {
+                width: 100%;
+            }
+            
+            .stat-card {
+                min-width: 100%;
+            }
+            
+            .tab-header {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 0.5rem;
+            }
+            
+            .admin-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        /* Truncated text */
+        .text-truncate {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Search and filter */
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(170, 150, 218, 0.3);
+        }
+
+        .filter-select {
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            min-width: 180px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Decorative glass shapes -->
+    <div class="glass-shape shape-1"></div>
+    <div class="glass-shape shape-2"></div>
+    <div class="glass-shape shape-3"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <a href="/" class="navbar-brand">
+                <i class="fas fa-brain brand-icon"></i>
+                Sentiment AI
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link"><i class="fas fa-chart-bar me-2"></i>New Analysis</a>
+                <a href="/user_history" class="nav-link"><i class="fas fa-history me-2"></i>My History</a>
+                <a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1 class="admin-title"><i class="fas fa-shield-alt me-3" style="color: var(--accent);"></i>Admin Dashboard</h1>
+            <div class="admin-actions">
+                <button class="btn-action"><i class="fas fa-download me-2"></i>Export Data</button>
+                <button class="btn-action"><i class="fas fa-cog me-2"></i>Settings</button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h2 class="stat-number">{{ users|length }}</h2>
+                    <p class="stat-label">Total Users</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <h2 class="stat-number">{{ analyses|length }}</h2>
+                    <p class="stat-label">Recent Analyses</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <h2 class="stat-number">{{ analyses|selectattr('prediction', 'equalto', 'Suicidal')|list|length }}</h2>
+                    <p class="stat-label">Suicidal Detections</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="stat-content">
+                    <h2 class="stat-number">
+                        {% set suicidal_count = analyses|selectattr('prediction', 'equalto', 'Suicidal')|list|length %}
+                        {% set total = analyses|length %}
+                        {% if total > 0 %}
+                            {{ (suicidal_count / total * 100)|round|int }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </h2>
+                    <p class="stat-label">Positivity Rate</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Container -->
+        <div class="tab-container">
+            <div class="tab-header">
+                <button class="tab-btn active" onclick="switchTab('users')"><i class="fas fa-users me-2"></i>User Management</button>
+                <button class="tab-btn" onclick="switchTab('analyses')"><i class="fas fa-chart-bar me-2"></i>Recent Analyses</button>
+                <button class="tab-btn" onclick="switchTab('settings')"><i class="fas fa-cog me-2"></i>System Settings</button>
+                <button class="tab-btn" onclick="switchTab('logs')"><i class="fas fa-list me-2"></i>Activity Logs</button>
+            </div>
+            
+            <div class="tab-body">
+                <!-- Users Tab Content -->
+                <div id="users-tab" class="tab-content active">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Search users...">
+                        <select class="filter-select">
+                            <option value="all">All Roles</option>
+                            <option value="admin">Admin</option>
+                            <option value="user">Regular User</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        {% if user.role == 'admin' %}
+                                        <span class="badge badge-admin">Admin</span>
+                                        {% else %}
+                                        <span class="badge badge-user">User</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if user.created_at %}
+                                            {{ user.created_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn-action btn-view"><i class="fas fa-eye"></i></button>
+                                        {% if user.role != 'admin' %}
+                                        <form action="/admin/delete_user/{{ user.id }}" method="POST" 
+                                              style="display:inline" 
+                                              onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                            <button type="submit" class="btn-action btn-delete">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination">
+                        <a href="#" class="page-link"><i class="fas fa-chevron-left"></i></a>
+                        <a href="#" class="page-link active">1</a>
+                        <a href="#" class="page-link">2</a>
+                        <a href="#" class="page-link">3</a>
+                        <a href="#" class="page-link"><i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Analyses Tab Content -->
+                <div id="analyses-tab" class="tab-content">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Search analyses...">
+                        <select class="filter-select">
+                            <option value="all">All Results</option>
+                            <option value="suicidal">Suicidal</option>
+                            <option value="non-suicidal">Non-Suicidal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Text</th>
+                                    <th>Prediction</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for analysis in analyses %}
+                                <tr>
+                                    <td>{{ analysis.id }}</td>
+                                    <td>{{ analysis.username }}</td>
+                                    <td class="text-truncate">{{ analysis.translated_text }}</td>
+                                    <td>
+                                        {% if analysis.prediction == 'Suicidal' %}
+                                        <span class="badge badge-suicidal">Suicidal</span>
+                                        {% else %}
+                                        <span class="badge badge-non-suicidal">Non-Suicidal</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if analysis.created_at %}
+                                            {{ analysis.created_at.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn-action btn-view"><i class="fas fa-eye"></i></button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination">
+                        <a href="#" class="page-link"><i class="fas fa-chevron-left"></i></a>
+                        <a href="#" class="page-link active">1</a>
+                        <a href="#" class="page-link">2</a>
+                        <a href="#" class="page-link">3</a>
+                        <a href="#" class="page-link"><i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Settings Tab Content -->
+                <div id="settings-tab" class="tab-content">
+                    <h3>System Settings</h3>
+                    <p>Configure system settings and preferences here.</p>
+                    <!-- Settings content would go here -->
+                </div>
+                
+                <!-- Logs Tab Content -->
+                <div id="logs-tab" class="tab-content">
+                    <h3>Activity Logs</h3>
+                    <p>View system activity and user logs here.</p>
+                    <!-- Logs content would go here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Deactivate all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            // Activate selected button
+            event.target.classList.add('active');
+        }
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
